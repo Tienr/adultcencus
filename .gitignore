@@ -1,36 +1,30 @@
-# History files
-.Rhistory
-.Rapp.history
-
-# Session Data files
-.RData
-
-# Example code in package build process
-*-Ex.R
-
-# Output files from R CMD build
-/*.tar.gz
-
-# Output files from R CMD check
-/*.Rcheck/
-
-# RStudio files
-.Rproj.user/
-
-# produced vignettes
-vignettes/*.html
-vignettes/*.pdf
-
-# OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
-.httr-oauth
-
-# knitr and R markdown default cache directories
-/*_cache/
-/cache/
-
-# Temporary files created by R markdown
-*.utf8.md
-*.knit.md
-
-# Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
-rsconnect/
+```{r}
+setwd("C:/Users/tiera/Downloads")
+adult<-read.table("adult.data",
+           header = FALSE,
+           sep = ",",
+           stringsAsFactors = TRUE)
+adult%<>%rename("Age" = V1,"Workclass" = V2,"fnlwgt" = V3,"Education" = V4,"education-num" = V5,
+               "marital-status"=V6,"Occupation"=V7,"relationship" = V8,"race" = V9,"sex"=V10,"Capital-gain"=V11,"Capital-loss"=V12,"hours-per-week"=V13,"native-country"=V14,"Income"=V15 )
+adult%<>%mutate(.,Income = ifelse(Income == " >50K",1,0),sex = ifelse(sex ==" Male",1,0))
+adult%<>%mutate(.,`native-country`= ifelse(`native-country`== ' United-States',1,0))
+adult.salary<-adult%>%filter(Workclass !=" ?",Occupation != " ?")
+summary(adult.salary)
+adult.salary[[ "Age"]] <- ordered(cut(adult.salary[[ "Age"]], c(15,25,45,65,100)),
+  labels = c("Young", "Middle-aged", "Senior", "Old"))
+adult.salary[[ "hours-per-week"]] <- ordered(cut(adult.salary[[ "hours-per-week"]],
+  c(0,25,40,60,168)),
+  labels = c("Part-time", "Full-time", "Over-time", "Workaholic"))
+adult.salary[[ "Capital-gain"]] <- ordered(cut(adult.salary[[ "Capital-gain"]],
+  c(-Inf,0,median(adult.salary[[ "Capital-gain"]][adult.salary[[ "Capital-gain"]]>0]),
+  Inf)), labels = c("None", "Low", "High"))
+adult.salary[["Capital-loss"]] <-ordered(cut(adult.salary[["Capital-loss"]],c(-Inf,0,median(adult.salary[["Capital-loss"]][adult.salary[["Capital-loss"]]>0]),Inf)), labels = c("None","Low","High"))
+adult.salary%<>%mutate(.,Education = ifelse(Education !=" Bachelors"& Education !=" Masters" & Education !=" Doctorate","Below Bachelor",as.character(Education)))
+adult.salary%<>%mutate(.,`marital-status` = ifelse(`marital-status`!=" Married-civ-spouse" & `marital-status`!=" Married-AF-spouse","Single","Couple"))
+###Drop some irrelevant variable:
+```{r}
+adult.salary[["fnlwgt"]]<- NULL
+adult.salary[["education-num"]]<-NULL
+adult.salary[["Workclass"]]<-NULL
+adult.salary[["relationship"]]<-NULL
+```
